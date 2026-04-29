@@ -1,0 +1,38 @@
+.file-explorer {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.explorer-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-tertiary);
+}
+
+.explorer-title {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--accent-cyber-blue);
+}
+
+.explorer-stats {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  padding: var(--space-1) var(--space-2);
+  border-radius: 6px;
+}
+
+.explorer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2) 0;
+}
