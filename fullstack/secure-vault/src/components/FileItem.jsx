@@ -1,80 +1,66 @@
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 import './FileItem.css';
 
-function FileItem({ item, depth = 0, isSelected, onSelect, onToggle, isExpanded }) {
-  const [isHovered, setIsHovered] = useState(false);
+function FileItem({ item, depth, isSelected, isFocused, onSelect, onToggle, isExpanded }) {
+  const itemRef = useRef(null);
   const isFolder = item.type === 'folder';
 
-  const getIcon = () => {
-    if (isFolder) {
-      return isExpanded ? '📂' : '📁';
+  useEffect(() => {
+    if (isFocused && itemRef.current) {
+      itemRef.current.focus();
+      itemRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-    // File icons based on extension
-    const ext = item.extension;
-    if (ext === 'pdf') return '📄';
-    if (ext === 'docx') return '📝';
-    if (ext === 'xlsx') return '📊';
-    if (ext === 'txt') return '📃';
-    if (ext === 'md') return '📖';
-    if (ext === 'csv') return '📈';
-    return '📎';
+  }, [isFocused]);
+
+  const getStatusBadge = () => {
+    if (isFolder) return null;
+    return <span className="status-badge secured">SECURED</span>;
   };
 
-  const handleClick = (e) => {
-    e.stopPropagation();
-    onSelect(item);
-  };
-
-  const handleDoubleClick = (e) => {
-    e.stopPropagation();
-    if (isFolder && onToggle) {
-      onToggle(item);
-    }
-  };
-
-  const handleToggle = (e) => {
-    e.stopPropagation();
-    if (isFolder && onToggle) {
-      onToggle(item);
-    }
+  const formatDate = () => {
+    // Demo date - in real app, would come from data
+    return "Oct 12, 2023";
   };
 
   return (
     <div
-      className={`file-item ${isSelected ? 'selected' : ''} ${isHovered ? 'hover' : ''}`}
-      style={{ paddingLeft: `${depth * 20 + 12}px` }}
-      onClick={handleClick}
-      onDoubleClick={handleDoubleClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      tabIndex={0}
-      role="treeitem"
-      aria-expanded={isFolder ? isExpanded : undefined}
+      ref={itemRef}
+      className={`file-item ${isSelected ? 'selected' : ''} ${isFocused ? 'focused' : ''}`}
+      onClick={onSelect}
+      onDoubleClick={onToggle}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          if (isFolder) onToggle();
+          else onSelect();
+        }
+      }}
+      tabIndex={isFocused ? 0 : -1}
+      style={{ paddingLeft: `${depth * 24 + 16}px` }}
     >
-      <div className="file-item-content">
-        <span className="file-icon">{getIcon()}</span>
-        
-        {isFolder && (
-          <button
-            className="expand-toggle"
-            onClick={handleToggle}
-            aria-label={isExpanded ? 'Collapse' : 'Expand'}
-          >
-            {isExpanded ? '▼' : '▶'}
-          </button>
-        )}
-        
-        <span className="file-name">{item.name}</span>
-        
-        {!isFolder && (
-          <span className="file-size">{item.size}</span>
-        )}
-        
-        {isFolder && item.children && (
-          <span className="folder-count">
-            ({item.children.length} {item.children.length === 1 ? 'item' : 'items'})
+      <div className="file-item-row">
+        <div className="cell-name">
+          <span className="file-icon">
+            {isFolder ? (isExpanded ? '📂' : '📁') : '📄'}
           </span>
-        )}
+          <span className="file-name">{item.name}</span>
+          {getStatusBadge()}
+        </div>
+        
+        <div className="cell-status">
+          {isFolder ? '—' : 'SECURED'}
+        </div>
+        
+        <div className="cell-modified">
+          {formatDate()}
+        </div>
+        
+        <div className="cell-size">
+          {item.size || '—'}
+        </div>
+        
+        <div className="cell-actions">
+          <button className="action-icon" onClick={(e) => { e.stopPropagation(); }}>⋯</button>
+        </div>
       </div>
     </div>
   );
